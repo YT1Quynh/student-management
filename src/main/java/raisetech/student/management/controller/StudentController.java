@@ -1,20 +1,22 @@
 package raisetech.student.management.controller;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 import raisetech.student.management.controller.converter.StudentConverter;
-import raisetech.student.management.data.Student;
+import raisetech.student.management.data.Students;
 import raisetech.student.management.data.StudentsCourses;
 import raisetech.student.management.domain.StudentDetail;
 import raisetech.student.management.service.StudentService;
 
-@RestController
+@Controller
 public class StudentController {
 
   private StudentService service;
@@ -27,14 +29,47 @@ public class StudentController {
   }
 
   @GetMapping("/studentsList")
-  public List<StudentDetail> getStudentList(){
-    List<Student> students = service.searchStudentList();
+  public String getStudentList(Model model){
+    List<Students> students = service.searchStudentList();
     List<StudentsCourses> studentsCourses = service.searchStudentsCourseList();
 
-    return converter.convertStudentDetails(students, studentsCourses);
+    model.addAttribute("studentList",converter.convertStudentDetails(students, studentsCourses));
+    return "studentList";
 
   }
-  @GetMapping("/studentsCourseList/course")
+  @ResponseBody
+  @GetMapping("/studentsCourseList")
   public List<StudentsCourses> getStudentsCourseList(){
     return service.searchStudentsCourseList();
-  }}
+  }
+
+  @GetMapping("/newStudent")
+  public String newStudent(Model model){
+    model.addAttribute("studentDetail", new StudentDetail());
+    return "registerStudent";
+  }
+
+  @GetMapping("/newRegister")
+  public String newRegister(Model model){
+    model.addAttribute("studentDetail", new StudentDetail());
+    return "registration";
+  }
+
+  @PostMapping("/registerStudent")
+  public String registerStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result) {
+    if(result.hasErrors()){
+      return "registerStudent";
+  }
+    return "redirect:/studentsList";
+
+  }
+  @PostMapping("/registration")
+  public String registration(@ModelAttribute StudentDetail studentDetail, BindingResult result){
+    if(result.hasErrors()){
+      return "registration";
+    }
+    service.registerStudent(studentDetail.getStudents());
+    return "redirect:/studentsList";
+
+  }
+  }
