@@ -26,7 +26,7 @@ public class StudentService {
 
   public StudentDetail searchStudent(String id){
     Student student = repository.searchStudent(id);
-    List<StudentsCourses> studentsCourses=repository.searchStudentsCourses(student.getId());
+    List<StudentsCourses> studentsCourses=repository.searchStudentsCourses(String.valueOf(student.getId()));
     StudentDetail studentDetail = new StudentDetail();
     studentDetail.setStudent(student);
     studentDetail.setStudentCourse(studentsCourses);
@@ -57,4 +57,6 @@ public class StudentService {
 
     }
   }
+
+
 }
